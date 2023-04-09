@@ -73,7 +73,7 @@ namespace RazorPagesGeneral
     }
     public class ContactsService : IContactsService
     {
-        private static Mutex mutexObj = new Mutex();
+        private Mutex mutexObj = new Mutex();
         private String csvFileName = @"csv\contacts.csv";
         public void writeContact(Contact newContact)
         {
