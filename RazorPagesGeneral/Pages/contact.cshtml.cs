@@ -17,7 +17,7 @@ namespace RazorPagesGeneral.Pages
     public class contactModel : PageModel
     {
 
-        private IContactsService contactsService;
+        private readonly IContactsService contactsService;
 
         public contactModel(IContactsService service)
         {

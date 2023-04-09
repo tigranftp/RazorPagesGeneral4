@@ -24,8 +24,8 @@ namespace RazorPagesGeneral
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddRazorPages();
-            services.AddScoped<ITestimonialService, TestimonialService>();
-            services.AddScoped<IContactsService, ContactsService>();
+            services.AddSingleton<ITestimonialService, TestimonialService>();
+            services.AddSingleton<IContactsService, ContactsService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
