@@ -9,7 +9,9 @@ using CsvHelper;
 using CsvHelper.Configuration;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using RazorPagesGeneral.Models;
 
 namespace RazorPagesGeneral.Pages
 {
@@ -37,7 +39,26 @@ namespace RazorPagesGeneral.Pages
             newContact.select_service = Request.Form["select_service"];
             newContact.select_price = Request.Form["select_price"];
             newContact.comments = Request.Form["comments"];
-            contactsService.writeContact(newContact);
+            writeToDBContacts(newContact);
+        }
+
+        public static void writeToDBContacts(Contact cnt)
+        {
+            IConfiguration config = new ConfigurationBuilder()
+                .AddJsonFile("appsettings.json")
+                .Build();
+            var options = new DbContextOptionsBuilder<AppDBContext>()
+                .UseSqlite(config.GetConnectionString("Default"))
+                .Options;
+
+            using (var context = new AppDBContext(options))
+            {
+                context.Database.EnsureCreated();
+                context.Database.Migrate();
+
+                context.Contacts.Add(cnt);
+                context.SaveChanges();
+            }
         }
     }
 

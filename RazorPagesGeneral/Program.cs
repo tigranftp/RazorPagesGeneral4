@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,6 +13,7 @@ using CsvHelper.Configuration;
 using System.Globalization;
 using CsvHelper;
 using System.Threading;
+using RazorPagesGeneral.Models;
 
 namespace RazorPagesGeneral
 {
@@ -28,12 +30,14 @@ namespace RazorPagesGeneral
                 {
                     webBuilder.UseStartup<Startup>();
                 });
+
     }
 
 
     [Serializable]
     public class Testimonial
     {
+        public int Id { get; set; }
         public string? CommentLabel { get; set; }
         public string? Comment { get; set; }
         public string? Name { get; set; }
@@ -49,10 +53,25 @@ namespace RazorPagesGeneral
     {
         public IEnumerable<Testimonial> getAll()
         {
-            var streamReader = new StreamReader("testimonials.json");
 
-            string json = streamReader.ReadToEnd();
-            return JsonSerializer.Deserialize<Testimonial[]>(json) ?? new Testimonial[] { };
+            IConfiguration config = new ConfigurationBuilder()
+                .AddJsonFile("appsettings.json")
+                .Build();
+            var options = new DbContextOptionsBuilder<AppDBContext>()
+                .UseSqlite(config.GetConnectionString("Default"))
+                .Options;
+            var res = new List<Testimonial>();
+            using (var context = new AppDBContext(options))
+            {
+                context.Database.EnsureCreated();
+                context.Database.Migrate();
+
+                foreach (var testi in context.Testimonials)
+                {
+                    res.Add(testi);
+                }
+            }
+            return res;
         }
     }
 
@@ -63,6 +82,7 @@ namespace RazorPagesGeneral
 
     public class Contact
     {
+        public int Id { get; set; }
         public String first_name { get; set; }
         public String last_name { get; set; }
         public String email { get; set; }
